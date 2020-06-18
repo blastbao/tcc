@@ -1,6 +1,6 @@
 package model
 
-import "tcc_transaction/store/data"
+import "github.com/blastbao/tcc/store/data"
 
 type Api struct {
 	UrlPattern string `json:"url_pattern"`

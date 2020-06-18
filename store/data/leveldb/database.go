@@ -6,8 +6,8 @@ import (
 	"github.com/syndtr/goleveldb/leveldb"
 	"github.com/syndtr/goleveldb/leveldb/util"
 	"sync"
-	"tcc_transaction/constant"
-	"tcc_transaction/store/data"
+	"github.com/blastbao/tcc/constant"
+	"github.com/blastbao/tcc/store/data"
 	"time"
 )
 

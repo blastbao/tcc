@@ -6,7 +6,7 @@ package logger
 import (
 	"fmt"
 	"os"
-	"tcc_transaction/log/writer"
+	"github.com/blastbao/tcc/log/writer"
 	"time"
 )
 

@@ -4,9 +4,9 @@ import (
 	"fmt"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/jmoiron/sqlx"
-	"tcc_transaction/constant"
-	"tcc_transaction/log"
-	"tcc_transaction/store/data"
+	"github.com/blastbao/tcc/constant"
+	"github.com/blastbao/tcc/log"
+	"github.com/blastbao/tcc/store/data"
 	"time"
 )
 

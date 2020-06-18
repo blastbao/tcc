@@ -2,8 +2,8 @@ package email
 
 import (
 	"github.com/go-gomail/gomail"
-	"tcc_transaction/global/config"
-	"tcc_transaction/log"
+	"github.com/blastbao/tcc/global/config"
+	"github.com/blastbao/tcc/log"
 )
 
 const (

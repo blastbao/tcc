@@ -7,7 +7,7 @@ import (
 	"os"
 	"syscall"
 	"time"
-	"tcc_transaction/log/writer/common"
+	"github.com/blastbao/tcc/log/writer/common"
 )
 
 func MmapRead(filePath string) (content []byte, err error) {

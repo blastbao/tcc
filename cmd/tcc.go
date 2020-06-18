@@ -4,32 +4,35 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"tcc_transaction/constant"
-	"tcc_transaction/global/various"
-	"tcc_transaction/log"
-	"tcc_transaction/model"
-	"tcc_transaction/store/data"
-	"tcc_transaction/util"
+	"github.com/blastbao/tcc/constant"
+	"github.com/blastbao/tcc/global/various"
+	"github.com/blastbao/tcc/log"
+	"github.com/blastbao/tcc/model"
+	"github.com/blastbao/tcc/store/data"
+	"github.com/blastbao/tcc/util"
 	"time"
 )
 
 type tcc interface {
 	// r：原生Request请求
 	// api：根据当前请求，从配置文件中获取的Try的URL信息
-	// 返回值：1、尝试过程中，成功的步骤
-	// 2、错误信息
+	// 返回值：
+	// 	1、尝试过程中，成功的步骤
+	// 	2、错误信息
 	Try(r *http.Request, api *model.RuntimeApi) ([]*data.SuccessStep, error)
 
 	// r：原生Request请求
 	// api：根据当前请求，从配置文件中获取的Confirm的URL信息
-	// 返回值：1、错误信息
+	// 返回值：
+	// 	1、错误信息
 	Confirm(r *http.Request, api *model.RuntimeApi) error
 
 	// r：原生Request请求
 	// api：根据当前请求，从配置文件中获取的Cancel的URL信息
 	// nodes：Try时可能成功的步骤，即需要回滚的步骤（根据Try返回值封装生成）
-	// 返回值：1、执行取消时，失败步骤的ID编号集合
-	// 2、错误信息
+	// 返回值：
+	// 	1、执行取消时，失败步骤的ID编号集合
+	// 	2、错误信息
 	Cancel(r *http.Request, api *model.RuntimeApi, nodes []*model.RuntimeTCC) ([]int64, error)
 }
 

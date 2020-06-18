@@ -3,8 +3,8 @@ package main
 import (
 	"fmt"
 	"net/http"
-	"tcc_transaction/model"
-	"tcc_transaction/store/data"
+	"github.com/blastbao/tcc/model"
+	"github.com/blastbao/tcc/store/data"
 )
 
 type ExampleTcc struct {

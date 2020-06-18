@@ -2,7 +2,7 @@ package log
 
 import (
 	"strings"
-	"tcc_transaction/log/logger"
+	"github.com/blastbao/tcc/log/logger"
 )
 // 全局，为了避免在上下文中传递对象
 var (

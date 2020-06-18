@@ -3,12 +3,12 @@ package task
 import (
 	"fmt"
 	"strings"
-	"tcc_transaction/constant"
-	"tcc_transaction/global/config"
-	"tcc_transaction/global/various"
-	"tcc_transaction/send"
-	"tcc_transaction/send/email"
-	"tcc_transaction/store/data"
+	"github.com/blastbao/tcc/constant"
+	"github.com/blastbao/tcc/global/config"
+	"github.com/blastbao/tcc/global/various"
+	"github.com/blastbao/tcc/send"
+	"github.com/blastbao/tcc/send/email"
+	"github.com/blastbao/tcc/store/data"
 )
 
 func taskToSend(needRollbackData []*data.RequestInfo, subject string) {

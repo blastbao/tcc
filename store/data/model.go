@@ -1,6 +1,6 @@
 package data
 
-import "tcc_transaction/util"
+import "github.com/blastbao/tcc/util"
 
 type RequestInfo struct {
 	Id           int64          `json:"id" db:"id"`

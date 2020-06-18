@@ -3,8 +3,8 @@ package main
 import (
 	"fmt"
 	"net/http"
-	"tcc_transaction/global/various"
-	"tcc_transaction/task"
+	"github.com/blastbao/tcc/global/various"
+	"github.com/blastbao/tcc/task"
 )
 
 var serverName = "/tcc"

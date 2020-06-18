@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/coreos/etcd/clientv3/concurrency"
-	"tcc_transaction/global/various"
+	"github.com/blastbao/tcc/global/various"
 	"time"
 )
 

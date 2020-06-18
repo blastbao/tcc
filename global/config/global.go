@@ -2,7 +2,7 @@ package config
 
 import (
 	"flag"
-	"tcc_transaction/store/data"
+	"github.com/blastbao/tcc/store/data"
 )
 
 var (

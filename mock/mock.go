@@ -3,9 +3,9 @@ package main
 import (
 	"context"
 	"encoding/json"
-	"tcc_transaction/global/config"
-	"tcc_transaction/model"
-	"tcc_transaction/store/config/etcd"
+	"github.com/blastbao/tcc/global/config"
+	"github.com/blastbao/tcc/model"
+	"github.com/blastbao/tcc/store/config/etcd"
 	"time"
 )
 

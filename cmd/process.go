@@ -3,12 +3,12 @@ package main
 import (
 	"fmt"
 	"net/http"
-	"tcc_transaction/constant"
-	"tcc_transaction/global/various"
-	"tcc_transaction/log"
-	"tcc_transaction/model"
-	"tcc_transaction/store/data"
-	"tcc_transaction/util"
+	"github.com/blastbao/tcc/constant"
+	"github.com/blastbao/tcc/global/various"
+	"github.com/blastbao/tcc/log"
+	"github.com/blastbao/tcc/model"
+	"github.com/blastbao/tcc/store/data"
+	"github.com/blastbao/tcc/util"
 )
 
 type proxy struct {

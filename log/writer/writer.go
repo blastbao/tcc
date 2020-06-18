@@ -2,9 +2,9 @@ package writer
 
 import (
 	"fmt"
-	"tcc_transaction/log/writer/common"
-	"tcc_transaction/log/writer/mmap"
-	"tcc_transaction/log/writer/stdout"
+	"github.com/blastbao/tcc/log/writer/common"
+	"github.com/blastbao/tcc/log/writer/mmap"
+	"github.com/blastbao/tcc/log/writer/stdout"
 )
 
 // 如果有需要实现新的日志写入方式，则直接实现这个接口，并在创建实例时，返回对应的实例即可

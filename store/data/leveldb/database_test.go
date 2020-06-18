@@ -2,7 +2,7 @@ package leveldb
 
 import (
 	"fmt"
-	"tcc_transaction/store/data"
+	"github.com/blastbao/tcc/store/data"
 	"testing"
 )
 
