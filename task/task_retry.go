@@ -13,15 +13,19 @@ import (
 
 func taskToRetry(needRollbackData []*data.RequestInfo) {
 	log.Infof("start to retry, data is : %+v", len(needRollbackData))
+
 	for _, v := range needRollbackData {
+
 		if len(v.SuccessSteps) == 0 {
 			continue
 		}
 
+		// 失败重试次数过多
 		if v.Times >= constant.RetryTimes {
 			continue
 		}
 
+		//
 		runtimeAPI, err := various.GetApiWithURL(v.Url)
 		if err != nil {
 			log.Errorf("get api by url of [request_info] failed, please check it. error information is: %s", err)
@@ -29,8 +33,10 @@ func taskToRetry(needRollbackData []*data.RequestInfo) {
 		}
 		runtimeAPI.RequestInfo = v
 
+		// 如果当前事务处于 `提交失败（需要继续提交）` 状态，则继续提交
 		if v.Status == constant.RequestInfoStatus2 {
 			go confirm(runtimeAPI)
+		// 如果当前事务处于 `回滚失败（需要继续回滚）` 状态，则继续回滚
 		} else if v.Status == constant.RequestInfoStatus4 {
 			go cancel(runtimeAPI)
 		}
@@ -40,17 +46,26 @@ func taskToRetry(needRollbackData []*data.RequestInfo) {
 func confirm(api *model.RuntimeApi) {
 	var isErr bool
 	ri := api.RequestInfo
+
+	//
 	for _, v := range ri.SuccessSteps {
+
 		// confirm
 		cURL := util.URLRewrite(api.UrlPattern, ri.Url, api.Nodes[v.Index].Confirm.Url)
+
+		// 发送 http 请求
 		_, err := util.HttpForward(cURL, api.Nodes[v.Index].Confirm.Method, []byte(v.Param), nil, time.Duration(api.Nodes[v.Index].Confirm.Timeout))
 		if err != nil {
 			isErr = true
 			log.Errorf("asynchronous to confirm failed, please check it. error information is: %s", err)
 			continue
 		}
+
+		//
 		various.C.UpdateSuccessStepStatus(api.RequestInfo.Id, v.Id, constant.RequestTypeConfirm)
 	}
+
+
 	if !isErr {
 		various.C.Confirm(ri.Id)
 	} else {
@@ -61,7 +76,9 @@ func confirm(api *model.RuntimeApi) {
 func cancel(api *model.RuntimeApi) {
 	var isErr bool
 	ri := api.RequestInfo
+
 	for _, v := range ri.SuccessSteps {
+
 		// cancel
 		cURL := util.URLRewrite(api.UrlPattern, ri.Url, api.Nodes[v.Index].Cancel.Url)
 		dt, err := util.HttpForward(cURL, api.Nodes[v.Index].Cancel.Method, []byte(v.Param), nil, time.Duration(api.Nodes[v.Index].Cancel.Timeout))
@@ -71,6 +88,7 @@ func cancel(api *model.RuntimeApi) {
 			continue
 		}
 
+		//
 		var rst *util.Response
 		err = json.Unmarshal(dt, &rst)
 		if err != nil {
@@ -79,14 +97,18 @@ func cancel(api *model.RuntimeApi) {
 			continue
 		}
 
+		//
 		if rst.Code != constant.Success {
 			isErr = true
 			log.Errorf("asynchronous to cancel, response back content is wrong, please check it. error information is: %s", err)
 			continue
 		}
 
+		//
 		various.C.UpdateSuccessStepStatus(api.RequestInfo.Id, v.Id, constant.RequestTypeCancel)
 	}
+
+
 	if !isErr {
 		various.C.UpdateRequestInfoStatus(constant.RequestInfoStatus3, ri.Id)
 	} else {

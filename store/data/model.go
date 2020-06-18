@@ -2,6 +2,9 @@ package data
 
 import "github.com/blastbao/tcc/util"
 
+
+
+//
 type RequestInfo struct {
 	Id           int64          `json:"id" db:"id"`
 	Url          string         `json:"url" db:"url"`
@@ -16,6 +19,7 @@ type RequestInfo struct {
 	SuccessSteps []*SuccessStep `json:"success_steps" `
 }
 
+//
 type SuccessStep struct {
 	Id         int64  `json:"id" db:"id"`
 	RequestId  int64  `json:"request_id" db:"request_id"`

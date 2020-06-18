@@ -6,12 +6,18 @@ const (
 	InsertTccDataErrCode = 100
 	NotFoundErrCode      = 404
 
-	//
+	// 请求类型
 	RequestTypeTry     = 0
 	RequestTypeConfirm = 1
 	RequestTypeCancel  = 2
 
-	// 当前请求处理的状态：0：待处理（默认），1：提交成功，2：提交失败（需要继续提交），3：回滚成功，4：回滚失败（需要继续回滚），5：人工干预
+	// 当前请求处理的状态：
+	// 0：待处理（默认）
+	// 1：提交成功
+	// 2：提交失败（需要继续提交）
+	// 3：回滚成功
+	// 4：回滚失败（需要继续回滚）
+	// 5：人工干预
 	RequestInfoStatus0 = 0
 	RequestInfoStatus1 = 1
 	RequestInfoStatus2 = 2

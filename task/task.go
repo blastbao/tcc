@@ -31,6 +31,7 @@ func (ts *Task) Stop() {
 }
 
 func (ts *Task) exec() {
+	// 定时器
 	t := time.NewTicker(time.Second * ts.Interval)
 FOR:
 	for {
@@ -60,6 +61,8 @@ func Stop() {
 }
 
 func retryAndSend() {
+
+
 	ctx := context.Background()
 	l, err := lock.NewEtcdLock(ctx, *config.TimerInterval, constant.LockEtcdPrefix)
 	if err != nil {
@@ -74,19 +77,27 @@ func retryAndSend() {
 	}
 	defer l.Unlock(ctx)
 
+
 	data := getBaseData()
 	if len(data) == 0 {
 		return
 	}
+
+	//
 	go taskToRetry(data)
+
+	// 不断失败的事务，需要发送 email 告警
 	go taskToSend(data, "there are some exceptional data, please fix it soon")
 }
 
 func getBaseData() []*data.RequestInfo {
+
+	// 查找所有异常事务（状态为：2(提交失败) 和 4(回滚失败)）
 	needRollbackData, err := various.C.ListExceptionalRequestInfo()
 	if err != nil {
 		log.Errorf("the data that required for the task is failed to load, please check it. error information: %s", err)
 		return nil
 	}
+
 	return needRollbackData
 }

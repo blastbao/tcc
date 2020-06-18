@@ -26,8 +26,11 @@ var (
 func InitAll() {
 	flag.Parse()
 	var err error
+
+	// 创建 mysql 连接
 	C, err = mysql.NewMysqlClient(*config.MysqlUsername, *config.MysqlPassword, *config.MysqlHost, *config.MysqlPort, *config.MysqlDatabase)
 	if err != nil {
+		// 创建 level db 连接
 		C, err = leveldb.NewLevelDB(*config.DBPath)
 		if err != nil {
 			panic(err)
@@ -40,12 +43,13 @@ func InitAll() {
 }
 
 func GetApiWithURL(url string) (*model.RuntimeApi, error) {
+
 	for _, v := range apis {
 		reg, _ := regexp.Compile(v.UrlPattern)
 		if reg.MatchString(url) {
 			ra := &model.RuntimeApi{
 				UrlPattern: v.UrlPattern,
-				Nodes:      model.ConverToRuntime(v.Nodes),
+				Nodes: model.ConverToRuntime(v.Nodes),
 			}
 			return ra, nil
 		}
@@ -75,6 +79,8 @@ func LoadApiFromEtcd() {
 }
 
 func WatchApi() {
+
+
 	del := func(idx int) {
 		apis = append(apis[:idx], apis[idx+1:]...)
 	}

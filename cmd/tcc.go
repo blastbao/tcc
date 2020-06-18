@@ -14,22 +14,23 @@ import (
 )
 
 type tcc interface {
+
 	// r：原生Request请求
-	// api：根据当前请求，从配置文件中获取的Try的URL信息
+	// api：根据当前请求，从配置文件中获取的 Try 的 URL 信息
 	// 返回值：
 	// 	1、尝试过程中，成功的步骤
 	// 	2、错误信息
 	Try(r *http.Request, api *model.RuntimeApi) ([]*data.SuccessStep, error)
 
 	// r：原生Request请求
-	// api：根据当前请求，从配置文件中获取的Confirm的URL信息
+	// api：根据当前请求，从配置文件中获取的 Confirm 的 URL 信息
 	// 返回值：
 	// 	1、错误信息
 	Confirm(r *http.Request, api *model.RuntimeApi) error
 
 	// r：原生Request请求
 	// api：根据当前请求，从配置文件中获取的Cancel的URL信息
-	// nodes：Try时可能成功的步骤，即需要回滚的步骤（根据Try返回值封装生成）
+	// nodes：Try 时可能成功的步骤，即需要回滚的步骤（根据Try返回值封装生成）
 	// 返回值：
 	// 	1、执行取消时，失败步骤的ID编号集合
 	// 	2、错误信息
@@ -46,15 +47,25 @@ func NewDefaultTcc() tcc {
 	return &DefaultTcc{}
 }
 
+
+
+// 如果 err == nil ，则全部 api.nodes 都 try 成功，上层可以 commit 。
+// 如果 err != nil ，则可能部分成功，需要回滚。
+
 func (d *DefaultTcc) Try(r *http.Request, api *model.RuntimeApi) ([]*data.SuccessStep, error) {
+
 	var success []*data.SuccessStep
+
+    // 每个 node 执行 try 操作，直到遇到失败，返回已经成功 try 的 nodes 。
 	for _, node := range api.Nodes {
-		var rst *util.Response
+
+		// 根据规则，由 r.RequestURI 和 node.Try.Url 构造请求 url
 		tryURL := util.URLRewrite(api.UrlPattern, r.RequestURI[len(serverName)+1:], node.Try.Url)
 
-		// try
+		// 发送 Http 请求，执行 node 节点的 try 操作
 		dt, err := util.HttpForward(tryURL, node.Try.Method, []byte(api.RequestInfo.Param), r.Header, time.Duration(node.Try.Timeout))
-		// 不管成功与否（主要为了防止：当服务方接收并处理成功，但返回时失败），将结果保存起来，以备使用
+
+		// 不管成功与否（主要为了防止：当服务方接收并处理成功，但返回时失败），将结果保存起来，以备使用。
 		// 如果插入失败，则直接返回，并在后续回滚之前的步骤
 		ss := &data.SuccessStep{
 			RequestId: api.RequestInfo.Id,
@@ -62,36 +73,52 @@ func (d *DefaultTcc) Try(r *http.Request, api *model.RuntimeApi) ([]*data.Succes
 			Url:       tryURL,
 			Method:    node.Try.Method,
 			Param:     string(api.RequestInfo.Param),
-			Result:    string(dt),
-			Status:    constant.RequestTypeTry,
+			Result:    string(dt),						 	// 执行结果，json（成功 or 失败）
+			Status:    constant.RequestTypeTry,				// 请求类型
 		}
 		success = append(success, ss)
 
+		// 这里有三种可能的失败
+		// 1. http 请求失败（如超时），则失败，但该节点实际可能已经 try 成功，也需要当作 success 后续统一回滚。
+		// 2. http 响应解析失败，认为失败，但是该节点是否成功未知，当作 success 后续统一回滚。
+		// 3. http 明确反馈 try 失败，则当前节点无需回滚，不需要当作 success 返回，但是看实现也作为 success 返回了，但是设置了 ss.Resp 字段，
+		//    在 cancel 之前可以检查一下。假如，对明确 try 失败的 node 的回滚会有什么问题呢，拓展一点，对于没有收到 try 的节点回滚，又会有什么问题呢?
+
+		// http 请求失败，整体结束，返回已经成功执行的 step
 		if err != nil {
 			log.Errorf("access try method failed, error info: %s", err)
 			return success, err
 		}
 
+		// http 结果无法解析，整体结束，返回已经成功执行的 step
+		var rst *util.Response
 		err = json.Unmarshal(dt, &rst)
 		ss.Resp = rst
-
 		if err != nil {
 			return success, err
 		}
 
+		// 如果请求成功，但结果表示失败，整体结束，返回已经成功执行的 step
 		if rst.Code != constant.Success {
 			return success, fmt.Errorf(rst.Msg)
 		}
+
+		// 如果请求成功，结果也表示成功，继续执行下一个 step
 	}
 	return success, nil
 }
 
 func (d *DefaultTcc) Confirm(r *http.Request, api *model.RuntimeApi) error {
+
+
+	// 遍历所有需要提交的 nodes
 	for _, node := range api.Nodes {
+
+
 		var rst *util.Response
 		URL := util.URLRewrite(api.UrlPattern, r.RequestURI[len(serverName)+1:], node.Confirm.Url)
 
-		// confirm or cancel
+		// confirm
 		dt, err := util.HttpForward(URL, node.Confirm.Method, []byte(api.RequestInfo.Param), r.Header, time.Duration(node.Confirm.Timeout))
 		if err != nil {
 			log.Errorf("confirm failed, please check it. error info is: %+v", err)
@@ -99,6 +126,8 @@ func (d *DefaultTcc) Confirm(r *http.Request, api *model.RuntimeApi) error {
 		}
 		log.Infof("[%s] confirm response back content is: %+v", URL, string(dt))
 
+
+		//
 		err = json.Unmarshal(dt, &rst)
 		if err != nil {
 			log.Errorf("confirm failed, please check it. error info is: %+v", err)
@@ -115,8 +144,10 @@ func (d *DefaultTcc) Confirm(r *http.Request, api *model.RuntimeApi) error {
 		various.C.Confirm(api.RequestInfo.Id)
 	}
 
-	// 全部提交成功，则修改状态为提交成功，避免重复调用
+
+	// 全部提交成功，则修改事务 Id 状态为 `提交成功`，避免重复调用
 	various.C.UpdateRequestInfoStatus(constant.RequestInfoStatus1, api.RequestInfo.Id)
+
 
 	return nil
 }
@@ -124,10 +155,12 @@ func (d *DefaultTcc) Confirm(r *http.Request, api *model.RuntimeApi) error {
 func (d *DefaultTcc) Cancel(r *http.Request, api *model.RuntimeApi, nodes []*model.RuntimeTCC) ([]int64, error) {
 	var ids []int64
 	for _, node := range nodes {
+
+
 		var rst *util.Response
 		URL := util.URLRewrite(api.UrlPattern, r.RequestURI[len(serverName)+1:], node.Cancel.Url)
 
-		// confirm or cancel
+		// cancel
 		dt, err := util.HttpForward(URL, node.Cancel.Method, []byte(api.RequestInfo.Param), r.Header, time.Duration(node.Cancel.Timeout))
 		if err != nil {
 			log.Errorf("cancel failed, please check it. error info is: %+v", err)
@@ -150,8 +183,10 @@ func (d *DefaultTcc) Cancel(r *http.Request, api *model.RuntimeApi, nodes []*mod
 		if node.SuccessStep.Id == 0 {
 			continue
 		}
+
 		// 用于处理成功后，修改状态使用
 		ids = append(ids, node.SuccessStep.Id)
+
 	}
 	return ids, nil
 }

@@ -2,11 +2,15 @@ package model
 
 import "github.com/blastbao/tcc/store/data"
 
+
+// []*TCC 中包含一个事务对应的一组 tcc 对象，每个对象的 index 代表了
+
 type Api struct {
 	UrlPattern string `json:"url_pattern"`
 	Nodes      []*TCC `json:"nodes"`
 }
 
+//
 type TCC struct {
 	Index   int   `json:"index"`
 	Try     *Node `json:"try"`
@@ -14,6 +18,7 @@ type TCC struct {
 	Cancel  *Node `json:"cancel"`
 }
 
+// http endpoint
 type Node struct {
 	Url     string `json:"url"`
 	Method  string `json:"method"`
@@ -21,12 +26,14 @@ type Node struct {
 	Param   string `json:"param"` // 暂时先不使用
 }
 
+//
 type RuntimeApi struct {
 	UrlPattern  string
 	RequestInfo *data.RequestInfo
 	Nodes       []*RuntimeTCC
 }
 
+//
 type RuntimeTCC struct {
 	Index       int
 	Try         *RuntimeNode
@@ -35,13 +42,18 @@ type RuntimeTCC struct {
 	SuccessStep *data.SuccessStep
 }
 
+//
 type RuntimeNode struct {
 	Url     string
 	Method  string
 	Timeout int
 }
 
+
+
+
 func ConverToRuntime(nodes []*TCC) []*RuntimeTCC {
+
 	var rns = make([]*RuntimeTCC, 0, len(nodes))
 	for _, n := range nodes {
 		rns = append(rns, &RuntimeTCC{

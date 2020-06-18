@@ -11,6 +11,9 @@ import (
 	"time"
 )
 
+
+
+// 发送 http 请求
 func HttpForward(url, method string, param []byte, head map[string][]string, timeout time.Duration) ([]byte, error) {
 	log.Infof("url: %s, method: %s, param: %s", url, method, string(param))
 	switch method {

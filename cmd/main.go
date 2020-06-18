@@ -10,8 +10,10 @@ import (
 var serverName = "/tcc"
 
 func main() {
+
 	various.InitAll()
 	http.Handle("/", http.FileServer(http.Dir("file")))
+
 	// 用于决定使用哪种tcc逻辑，自定义或默认
 	var rtnHandle = func(t tcc) func(http.ResponseWriter, *http.Request) {
 		p := &proxy{}

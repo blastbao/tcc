@@ -40,6 +40,7 @@ func (e *Email) Send(content []byte) error {
 
 func (e *Email) send() {
 	go func() {
+
 		d := gomail.NewDialer(Host, Port, *config.EmailUsername, *config.EmailPassword)
 
 		var s gomail.SendCloser
