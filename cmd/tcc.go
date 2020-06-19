@@ -50,7 +50,7 @@ func NewDefaultTcc() tcc {
 
 
 // 如果 err == nil ，则全部 api.nodes 都 try 成功，上层可以 commit 。
-// 如果 err != nil ，则可能部分成功，需要回滚。
+// 如果 err != nil ，则可能部分成功，需要回滚已经 try 成功的 success nodes 。
 
 func (d *DefaultTcc) Try(r *http.Request, api *model.RuntimeApi) ([]*data.SuccessStep, error) {
 
